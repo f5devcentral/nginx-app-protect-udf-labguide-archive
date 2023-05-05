@@ -1,11 +1,14 @@
 name: Build the Docs
-on: push
-
+on:
+  push:
+    branches:
+      - dev
+      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      S3_DIR: nginx
+      S3_DIR: training/community/nginx-app-protect-standalone/html
 
     steps:
     - uses: actions/checkout@v2
@@ -20,12 +23,12 @@ jobs:
         aws-region: us-east-1
 
     - name: Copy files to s3 (Staging Clouddocs)
-      # Develop branch only
-      if: github.ref == 'refs/heads/develop'
+      if:
+        github.ref == 'refs/heads/dev'
       run: |
-        aws s3 sync --delete $PWD/docs/_build/html/ s3://clouddocs.f5networks.net/training/community/$S3_DIR/html/
+        aws s3 sync --delete $PWD/docs/_build/html/ s3://clouddocs.f5networks.net/$S3_DIR/
     - name: Copy files to s3 (Production Clouddocs)
-      # Master branch only
-      if: github.ref == 'refs/heads/master'
+      if:
+        github.ref == 'refs/heads/main'
       run: |
-        aws s3 sync --delete $PWD/docs/_build/html/ s3://clouddocs.f5.com/training/community/$S3_DIR/html/
+        aws s3 sync --delete $PWD/docs/_build/html/ s3://clouddocs.f5.com/$S3_DIR/
